@@ -8,6 +8,7 @@ export default function SignUp({ setView, login }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
@@ -24,11 +25,13 @@ export default function SignUp({ setView, login }) {
     const user = {
       email,
       name: nickname,
-      registered: true
+      registered: true,
+      role: role,
+      doctorId: role === 'provider' ? 'dr-abena-mensah' : null // default profile for newly registered providers
     };
 
     login(user);
-    setView('home');
+    setView(role === 'provider' ? 'provider-dashboard' : 'home');
   };
 
   return (
@@ -46,15 +49,41 @@ export default function SignUp({ setView, login }) {
           </div>
         )}
         <form onSubmit={handleSubmit}>
+          {/* Role Selection Tabs */}
           <div className="form-group">
             <label className="form-label">
               <User size={16} style={{ color: 'var(--primary-pink)' }} />
-              Name (Nickname)
+              I want to sign up as:
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button
+                type="button"
+                className={`btn ${role === 'student' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', background: role === 'student' ? 'var(--primary-pink)' : 'transparent', color: role === 'student' ? '#fff' : 'var(--text-secondary)' }}
+                onClick={() => setRole('student')}
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                className={`btn ${role === 'provider' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', background: role === 'provider' ? 'var(--primary-pink)' : 'transparent', color: role === 'provider' ? '#fff' : 'var(--text-secondary)' }}
+                onClick={() => setRole('provider')}
+              >
+                Health Professional
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">
+              <User size={16} style={{ color: 'var(--primary-pink)' }} />
+              {role === 'provider' ? 'Full Name / Nickname' : 'Name (Nickname)'}
             </label>
             <input
               type="text"
               className="form-control"
-              placeholder="e.g. Ama K."
+              placeholder={role === 'provider' ? 'e.g. Dr. Abena Mensah' : 'e.g. Ama K.'}
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               required

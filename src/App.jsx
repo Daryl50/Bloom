@@ -12,6 +12,13 @@ import Reminders from './views/Reminders';
 import Community from './views/Community';
 import Consultations from './views/Consultations';
 
+// Provider Views
+import ProviderDashboard from './views/provider/ProviderDashboard';
+import ProviderInbox from './views/provider/ProviderInbox';
+import ProviderSchedule from './views/provider/ProviderSchedule';
+import ProviderAnalytics from './views/provider/ProviderAnalytics';
+import ProviderProfile from './views/provider/ProviderProfile';
+
 import './App.css';
 
 function App() {
@@ -22,7 +29,11 @@ function App() {
   useEffect(() => {
     const savedUser = localStorage.getItem('bloom_user');
     if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      setCurrentUser(parsedUser);
+      if (parsedUser.role === 'provider') {
+        setView('provider-dashboard');
+      }
     }
   }, []);
 
@@ -35,6 +46,20 @@ function App() {
     setCurrentUser(null);
     localStorage.removeItem('bloom_user');
     setView('home');
+  };
+
+  const toggleRole = () => {
+    if (currentUser) {
+      const newRole = currentUser.role === 'provider' ? 'student' : 'provider';
+      const updatedUser = {
+        ...currentUser,
+        role: newRole,
+        doctorId: newRole === 'provider' ? (currentUser.doctorId || 'dr-abena-mensah') : null
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem('bloom_user', JSON.stringify(updatedUser));
+      setView(newRole === 'provider' ? 'provider-dashboard' : 'home');
+    }
   };
 
   // Render view dispatcher
@@ -56,6 +81,19 @@ function App() {
         return <Community />;
       case 'consultations':
         return <Consultations currentUser={currentUser} setView={setView} />;
+      
+      // Provider routes
+      case 'provider-dashboard':
+        return <ProviderDashboard currentUser={currentUser} setView={setView} />;
+      case 'provider-inbox':
+        return <ProviderInbox currentUser={currentUser} setView={setView} />;
+      case 'provider-schedule':
+        return <ProviderSchedule currentUser={currentUser} setView={setView} />;
+      case 'provider-analytics':
+        return <ProviderAnalytics currentUser={currentUser} setView={setView} />;
+      case 'provider-profile':
+        return <ProviderProfile currentUser={currentUser} setView={setView} />;
+        
       default:
         return <Home setView={setView} currentUser={currentUser} />;
     }
@@ -68,6 +106,7 @@ function App() {
         setView={setView}
         currentUser={currentUser}
         logout={logout}
+        toggleRole={toggleRole}
       />
       
       <main className="main-content">

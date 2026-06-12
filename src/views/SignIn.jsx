@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, ShieldAlert } from 'lucide-react';
 
 export default function SignIn({ setView, login }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState('student');
+  const [selectedDoctorId, setSelectedDoctorId] = useState('dr-abena-mensah');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
@@ -15,18 +17,23 @@ export default function SignIn({ setView, login }) {
     }
     
     // Simulate login
-    // Extract nickname from email to make it friendly
     const nickname = email.split('@')[0];
     const formattedNickname = nickname.charAt(0).toUpperCase() + nickname.slice(1) + ' K.';
     
+    let doctorName = 'Dr. Abena Mensah';
+    if (selectedDoctorId === 'dr-kofi-boateng') doctorName = 'Dr. Kofi Boateng';
+    if (selectedDoctorId === 'dr-sarah-osei') doctorName = 'Dr. Sarah Osei';
+
     const user = {
       email,
-      name: formattedNickname,
-      registered: true
+      name: role === 'provider' ? doctorName : formattedNickname,
+      registered: true,
+      role: role,
+      doctorId: role === 'provider' ? selectedDoctorId : null
     };
     
     login(user);
-    setView('home');
+    setView(role === 'provider' ? 'provider-dashboard' : 'home');
   };
 
   return (
@@ -44,6 +51,52 @@ export default function SignIn({ setView, login }) {
           </div>
         )}
         <form onSubmit={handleSubmit}>
+          {/* Role Selection Tabs */}
+          <div className="form-group">
+            <label className="form-label">
+              <User size={16} style={{ color: 'var(--primary-pink)' }} />
+              I am logging in as:
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button
+                type="button"
+                className={`btn ${role === 'student' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', background: role === 'student' ? 'var(--primary-pink)' : 'transparent', color: role === 'student' ? '#fff' : 'var(--text-secondary)' }}
+                onClick={() => setRole('student')}
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                className={`btn ${role === 'provider' ? 'btn-primary' : 'btn-outline'}`}
+                style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', background: role === 'provider' ? 'var(--primary-pink)' : 'transparent', color: role === 'provider' ? '#fff' : 'var(--text-secondary)' }}
+                onClick={() => setRole('provider')}
+              >
+                Health Professional
+              </button>
+            </div>
+          </div>
+
+          {/* Doctor Selector Dropdown (only visible for provider role) */}
+          {role === 'provider' && (
+            <div className="form-group animate-fade-in">
+              <label className="form-label">
+                <ShieldAlert size={16} style={{ color: 'var(--primary-pink)' }} />
+                Select Professional Profile:
+              </label>
+              <select
+                className="form-control"
+                value={selectedDoctorId}
+                onChange={(e) => setSelectedDoctorId(e.target.value)}
+                style={{ appearance: 'auto' }}
+              >
+                <option value="dr-abena-mensah">Dr. Abena Mensah (Nurse Practitioner)</option>
+                <option value="dr-kofi-boateng">Dr. Kofi Boateng (Gynecologist)</option>
+                <option value="dr-sarah-osei">Dr. Sarah Osei (General Practitioner)</option>
+              </select>
+            </div>
+          )}
+
           <div className="form-group">
             <label className="form-label">
               <Mail size={16} style={{ color: 'var(--primary-pink)' }} />
