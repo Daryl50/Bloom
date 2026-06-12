@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, ShieldCheck, Check, Heart, Sparkles, CheckSquare, Square } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Check, Heart, Sparkles, CheckSquare, Square, Info } from 'lucide-react';
 import { mockDoctors } from '../mockData';
 
 export default function ConsultationWizard({ onCancel, onSubmitSuccess }) {
